@@ -1,0 +1,33 @@
+# ssh-mcp 主机清单配置
+# 复制此文件为 hosts.yaml 并填入实际凭据
+# cp hosts.yaml.example hosts.yaml && chmod 600 hosts.yaml
+
+hosts:
+  # 密码认证示例
+  n110:
+    host: 10.31.10.110
+    port: 22
+    user: aiops
+    password: "填入密码"
+
+  # 密钥认证示例
+  n205:
+    host: 10.31.10.205
+    port: 22
+    user: aiops
+    key: /home/YOURNAME/.ssh/id_rsa
+
+  # 带 sudo 密码示例
+  # n44:
+  #   host: 10.113.1.44
+  #   user: admin
+  #   password: "userpass"
+  #   sudoPassword: "sudopass"
+
+  # 带 su 提权示例
+  # n100:
+  #   host: 10.113.1.100
+  #   user: aiops
+  #   key: /home/YOURNAME/.ssh/id_rsa
+  #   suPassword: "rootpass"
+  #   timeout: 120000

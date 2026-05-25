@@ -1,0 +1,74 @@
+# security.yaml — ssh-mcp-multi 安全控制配置
+# 复制此文件为 security.yaml 后按需修改
+# 修改后需重启 Claude Code 会话生效
+
+# ── 安全等级 ────────────────────────────────────────────────────────────────
+#   standard  — 黑名单模式，拦截已知危险命令（默认）
+#   strict    — 白名单模式，只允许 allowed 中列出的命令
+#   readonly  — 只允许读操作（ls/cat/grep/ps 等）
+#   disabled  — 不过滤（谨慎使用）
+level: standard
+
+# ── 黑名单规则 ──────────────────────────────────────────────────────────────
+# 即使不创建 security.yaml，内置默认规则也会生效（16 条）。
+# 此处的规则会追加到默认规则之后。
+# pattern: 正则表达式（不区分大小写）
+# reason:  被拦截时返回给 AI 的提示信息
+blocked:
+  # 示例：禁止在生产环境使用 apt/yum 安装软件
+  # - pattern: '(^|\s|;|&&|\|\|)\s*(apt|yum|dnf)\s+install\b'
+  #   reason: "禁止在服务器上安装软件包"
+
+  # 示例：禁止修改 crontab
+  # - pattern: '(^|\s|;|&&|\|\|)\s*crontab\s+(-e|-r)\b'
+  #   reason: "禁止修改或删除 crontab"
+
+# ── 白名单规则 ──────────────────────────────────────────────────────────────
+# 仅在 level 为 strict 或 readonly 时生效。
+# 命令必须匹配至少一条白名单规则才能执行。
+allowed:
+  - pattern: '^(ls|ll|dir)\s'
+    reason: "列出文件"
+  - pattern: '^cat\s'
+    reason: "查看文件内容"
+  - pattern: '^(head|tail|less|more)\s'
+    reason: "查看文件内容"
+  - pattern: '^(grep|egrep|fgrep|rg)\s'
+    reason: "搜索文件内容"
+  - pattern: '^find\s'
+    reason: "查找文件"
+  - pattern: '^(pwd|whoami|id|hostname|uname|date|uptime)\s*$'
+    reason: "系统信息"
+  - pattern: '^(df|du|free|top|htop|ps|vmstat|iostat|mpstat|nproc|lscpu)\b'
+    reason: "系统监控"
+  - pattern: '^(netstat|ss|ip\s+(addr|route|link\s+show)|ifconfig|ping|traceroute|dig|nslookup|host|curl|wget)\b'
+    reason: "网络诊断"
+  - pattern: '^(docker\s+(ps|images|logs|inspect|stats|top|exec)\b|kubectl\s+(get|describe|logs|top))'
+    reason: "容器/编排只读操作"
+  - pattern: '^(systemctl|service)\s+status\s'
+    reason: "服务状态查询"
+  - pattern: '^(journalctl|dmesg)\b'
+    reason: "日志查看"
+  - pattern: '^(echo|printf)\s'
+    reason: "输出文本"
+  - pattern: '^(wc|sort|uniq|awk|sed|cut|tr|xargs)\b'
+    reason: "文本处理"
+
+# ── 按主机覆盖 ──────────────────────────────────────────────────────────────
+# 为特定主机设置不同的安全等级或规则。
+# 主机名必须与 hosts.yaml 中的名称一致。
+hosts:
+  # 生产数据库：只读模式
+  # prod-db-01:
+  #   level: readonly
+
+  # 开发机：放行所有
+  # dev-01:
+  #   level: disabled
+
+  # 特定主机追加黑名单
+  # prod-web-01:
+  #   level: standard
+  #   blocked:
+  #     - pattern: '(^|\s|;|&&|\|\|)\s*systemctl\s+(restart|stop)\s+nginx\b'
+  #       reason: "禁止重启/停止 nginx 服务"

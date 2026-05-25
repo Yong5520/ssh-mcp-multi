@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+
+# --- 敏感文件（包含密码、内部 IP、审计日志） ---
+hosts.yaml
+security.yaml
+
+# Claude Code 本地权限配置（含密码和内部 IP）
+.claude/settings.local.json
+
+# 命令执行审计日志
+logs/
